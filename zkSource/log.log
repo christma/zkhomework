@@ -1,0 +1,20 @@
+[
+  {
+    "data": null,
+    "parent": null,
+    "children": [
+      "./zkSource/helloworld",
+      "./zkSource/spark"
+    ]
+  },
+  {
+    "data": "hadoop",
+    "parent": "./zkSource",
+    "children": null
+  },
+  {
+    "data": "spark",
+    "parent": "./zkSource",
+    "children": null
+  }
+]
