@@ -9,7 +9,7 @@ public interface SnapShot {
 
     void serialize(DataTree dataNode);
 
-    DataTree deserialize(String fliePath);
+    DataTree deserialize();
 
     void close() throws IOException;
 }

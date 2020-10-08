@@ -1,11 +1,14 @@
 package nx.zk;
 
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import nx.zk.utils.GsonUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileSnap implements SnapShot {
@@ -40,11 +43,14 @@ public class FileSnap implements SnapShot {
         writer.close();
     }
 
-    public DataTree deserialize(String fliePath) {
-        ConcurrentHashMap<String, DataNode> map = GsonUtils.readJsonFile(fliePath);
+    public DataTree deserialize() {
+        String fliePath = "./zkSource/log.json";
+        ConcurrentHashMap<String, Object> map = GsonUtils.readJsonFile(fliePath);
         DataTree dataTree = new DataTree();
-        for (String key : map.keySet()) {
-            dataTree.nodes.put(key, map.get(key));
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            //            dataTree.createNode(key, new DataNode(map.get(key).getData()));
+            DataNode dataNode = (DataNode) entry.getValue();
+            System.out.println(dataNode instanceof DataNode);
         }
 
         return dataTree;
@@ -55,10 +61,8 @@ public class FileSnap implements SnapShot {
     }
 
     public static void main(String[] args) {
-        DataTree deserialize = new FileSnap().deserialize("./zkSource/log.json");
-        for (String s : deserialize.nodes.keySet()) {
-            System.out.println(deserialize.nodes.get(s));
-        }
+        new FileSnap().deserialize();
+
     }
 
 }

@@ -14,31 +14,27 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DataTree implements DataTreeProtocol, SnapShot {
 
-    private DataNode rootNode = new DataNode();
+    private static DataNode rootNode = new DataNode("");
 
-    private final String rootZooKeeper = "./zkSource";
+    private static final String rootZooKeeper = "./zkSource";
 
-    public final ConcurrentHashMap<String, DataNode> nodes = new ConcurrentHashMap<String, DataNode>();
+    public static final Map<String, DataNode> nodes = new HashMap<String, DataNode>();
 
 
     public DataTree() {
-
         nodes.put(rootZooKeeper, rootNode);
-
-
     }
 
 
     public void createNode(String path, DataNode node) {
-        int lastSlash = path.lastIndexOf('/');
-        String parentName = path.substring(0, lastSlash);
+        int lastIndex = path.lastIndexOf('/');
+        String parentName = path.substring(0, lastIndex);
         node.setParent(parentName);
-        if (nodes.contains(parentName)) {
+        if (nodes.get(parentName).equals(node)) {
             throw new IllegalArgumentException("没有父类节点，请先创建。");
         }
         DataNode fatherNode = nodes.get(parentName);
         fatherNode.addChild(path);
-
         nodes.put(path, node);
     }
 
@@ -47,7 +43,6 @@ public class DataTree implements DataTreeProtocol, SnapShot {
 
         int lastSlash = path.lastIndexOf('/');
         String parentName = path.substring(0, lastSlash);
-        String childName = path.substring(lastSlash + 1);
         DataNode delNode = nodes.get(path);
         if (delNode.getChildren() != null) {
             throw new IllegalArgumentException("该节点有子节点，不能被删除");
@@ -85,19 +80,24 @@ public class DataTree implements DataTreeProtocol, SnapShot {
     }
 
 
-    public void treeShow(DataTree dataTree) {
-        Queue<String> queue = new LinkedList<String>();
-        queue.add(rootZooKeeper);
-        while (!queue.isEmpty()) {
-            String poll = queue.poll();
-            DataNode dn = dataTree.nodes.get(poll);
-            System.out.println(dn);
-            if (dn.getChildren() != null) {
-                for (String child : dn.getChildren()) {
-                    queue.add(child);
-                }
-            }
+    public void treeShow() {
+
+        for (Map.Entry<String, DataNode> entry : nodes.entrySet()) {
+            System.out.println(entry.getValue());
         }
+
+//        Queue<String> queue = new LinkedList<String>();
+//        queue.add(rootZooKeeper);
+//        while (!queue.isEmpty()) {
+//            String poll = queue.poll();
+//            DataNode dn = dataTree.nodes.get(poll);
+//            System.out.println(dn);
+//            if (dn.getChildren() != null) {
+//                for (String child : dn.getChildren()) {
+//                    queue.add(child);
+//                }
+//            }
+//        }
 
     }
 
@@ -130,14 +130,16 @@ public class DataTree implements DataTreeProtocol, SnapShot {
         writer.close();
     }
 
-    public DataTree deserialize(String fliePath) {
-        ConcurrentHashMap<String, DataNode> map = GsonUtils.readJsonFile(fliePath);
-
+    public DataTree deserialize() {
+        String fliePath = "./zkSource/log.json";
+        ConcurrentHashMap<String, Object> map = GsonUtils.readJsonFile(fliePath);
+        DataTree dataTree = new DataTree();
         for (String key : map.keySet()) {
-            nodes.put(key, map.get(key));
+//            dataTree.createNode(key, new DataNode());
+            System.out.println(key + "  " + map.get(key));
         }
 
-        return this;
+        return dataTree;
     }
 
     public void close() throws IOException {
