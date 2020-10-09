@@ -3,6 +3,7 @@ package nx.zk;
 
 import nx.zk.utils.GsonUtils;
 import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
+import org.mortbay.util.StringUtil;
 import org.omg.CORBA_2_3.portable.InputStream;
 
 import java.io.BufferedWriter;
@@ -26,19 +27,22 @@ public class DataTree implements DataTreeProtocol, SnapShot {
     }
 
 
+    @Override
     public void createNode(String path, DataNode node) {
         int lastIndex = path.lastIndexOf('/');
         String parentName = path.substring(0, lastIndex);
         node.setParent(parentName);
-        if (nodes.get(parentName).equals(node)) {
+        if (null != nodes.get(parentName) && nodes.get(parentName).equals(node)) {
             throw new IllegalArgumentException("没有父类节点，请先创建。");
         }
         DataNode fatherNode = nodes.get(parentName);
-        fatherNode.addChild(path);
-        nodes.put(path, node);
+        if (fatherNode != null) {
+            fatherNode.addChild(path);
+            nodes.put(path, node);
+        }
     }
 
-
+    @Override
     public boolean deleteNode(String path) {
 
         int lastSlash = path.lastIndexOf('/');
@@ -61,15 +65,18 @@ public class DataTree implements DataTreeProtocol, SnapShot {
 
     }
 
+    @Override
     public DataNode getNode(String path) {
         return nodes.get(path);
     }
 
+    @Override
     public Set<String> getChildren(String path) {
         DataNode dataNode = nodes.get(path);
         return dataNode.getChildren();
     }
 
+    @Override
     public DataNode setNode(String path, String data) {
         if (!nodes.containsKey(path)) {
             throw new IllegalArgumentException("该节点不存在");
@@ -79,7 +86,7 @@ public class DataTree implements DataTreeProtocol, SnapShot {
         return needChange;
     }
 
-
+    @Override
     public void treeShow() {
 
         for (Map.Entry<String, DataNode> entry : nodes.entrySet()) {
@@ -101,7 +108,7 @@ public class DataTree implements DataTreeProtocol, SnapShot {
 
     }
 
-
+    @Override
     public void serialize(DataTree dataTree) {
 
         String s = GsonUtils.toJson(nodes);
@@ -130,18 +137,20 @@ public class DataTree implements DataTreeProtocol, SnapShot {
         writer.close();
     }
 
+    @Override
     public DataTree deserialize() {
         String fliePath = "./zkSource/log.json";
         ConcurrentHashMap<String, Object> map = GsonUtils.readJsonFile(fliePath);
         DataTree dataTree = new DataTree();
         for (String key : map.keySet()) {
-//            dataTree.createNode(key, new DataNode());
+            dataTree.createNode(key, new DataNode());
             System.out.println(key + "  " + map.get(key));
         }
 
         return dataTree;
     }
 
+    @Override
     public void close() throws IOException {
 
     }

@@ -1,8 +1,12 @@
 package nx.zk;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
 import nx.zk.utils.GsonUtils;
+
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FileSnap implements SnapShot {
 
+    @Override
 
     public void serialize(DataTree dataTree) {
 
@@ -43,25 +48,28 @@ public class FileSnap implements SnapShot {
         writer.close();
     }
 
+    @Override
     public DataTree deserialize() {
         String fliePath = "./zkSource/log.json";
         ConcurrentHashMap<String, Object> map = GsonUtils.readJsonFile(fliePath);
         DataTree dataTree = new DataTree();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            //            dataTree.createNode(key, new DataNode(map.get(key).getData()));
-            DataNode dataNode = (DataNode) entry.getValue();
-            System.out.println(dataNode instanceof DataNode);
+            DataNode dataNode = JSON.parseObject(entry.getValue().toString(), DataNode.class);
+
+            dataTree.createNode(entry.getKey(), dataNode);
+
         }
 
         return dataTree;
     }
 
+    @Override
     public void close() throws IOException {
 
     }
 
     public static void main(String[] args) {
-        new FileSnap().deserialize();
+        new FileSnap().deserialize().treeShow();
 
     }
 

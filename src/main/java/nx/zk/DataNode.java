@@ -11,10 +11,13 @@ public class DataNode {
 
     private Set<String> children;
 
+    public DataNode() {
+
+    }
 
     public DataNode(String data) {
         this.data = data;
-        parent = null;
+        parent = "./zkSource";
         children = null;
     }
 

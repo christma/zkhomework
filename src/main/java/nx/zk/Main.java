@@ -12,29 +12,30 @@ import java.util.Set;
 public class Main {
     public static void main(String[] args) throws IOException {
 //
-//        DataTree dataTree = new DataTree();
+        DataTree dataTree = new DataTree();
+        DataNode dataNode = new DataNode("helloworld");
+        dataTree.createNode("./zkSource/helloworld", dataNode);
 //
-//        DataNode dataNode = new DataNode("helloworld");
-//        dataTree.createNode("./zkSource/helloworld", dataNode);
-//
-//        DataNode sparkNode = new DataNode("spark");
-//        dataTree.createNode("./zkSource/spark", sparkNode);
-//
-//        DataNode hadoopNode = new DataNode("hadoop");
-//        dataTree.createNode("./zkSource/helloworld/hadoop", hadoopNode);
-//
-//        dataTree.deleteNode("./zkSource/spark");
+        DataNode sparkNode = new DataNode("spark");
+        dataTree.createNode("./zkSource/spark", sparkNode);
+
+        DataNode hadoopNode = new DataNode("hadoop");
+        dataTree.createNode("./zkSource/helloworld/hadoop", hadoopNode);
+
+        dataTree.deleteNode("./zkSource/spark");
+
+
 ////
-//        DataNode setNode = dataTree.setNode("./zkSource/helloworld/hadoop", "hadoopname");
+        DataNode setNode = dataTree.setNode("./zkSource/helloworld/hadoop", "hadoopname");
 //
-//        dataTree.treeShow();
 //
-//        Set<String> children = dataTree.getChildren("./zkSource");
-//        for (String str : children) {
-//            System.out.println(str);
-//        }
-//
-//        dataTree.serialize(dataTree);
+        Set<String> children = dataTree.getChildren("./zkSource");
+        for (String str : children) {
+            System.out.println(str);
+        }
+
+
+        dataTree.serialize(dataTree);
 
 
         DataTree tree = new DataTree().deserialize();
