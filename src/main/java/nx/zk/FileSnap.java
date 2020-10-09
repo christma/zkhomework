@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FileSnap implements SnapShot {
 
     @Override
-
     public void serialize(DataTree dataTree) {
 
 
@@ -55,9 +54,7 @@ public class FileSnap implements SnapShot {
         DataTree dataTree = new DataTree();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             DataNode dataNode = JSON.parseObject(entry.getValue().toString(), DataNode.class);
-
             dataTree.createNode(entry.getKey(), dataNode);
-
         }
 
         return dataTree;
