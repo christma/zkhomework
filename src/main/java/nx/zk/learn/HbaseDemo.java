@@ -12,7 +12,7 @@ import java.util.List;
 
 public class HbaseDemo {
     static Configuration conf = null;
-  
+
     private static final String ZK_CONNECT_STR =
             "hadoop000:2181";
 
