@@ -8,6 +8,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 
 import java.io.IOException;
+import java.util.List;
 
 public class HbaseDemo {
     static Configuration conf = null;
@@ -92,6 +93,38 @@ public class HbaseDemo {
 
     }
 
+    public void getResultByVersion(String tableName, String rowKey, String familyName, String columnName) throws IOException {
+        HTable table = new HTable(conf, Bytes.toBytes(tableName));
+        Get get = new Get(Bytes.toBytes(rowKey));
+        get.addColumn(Bytes.toBytes(familyName), Bytes.toBytes(columnName));
+        get.setMaxVersions(3);
+        Result result = table.get(get);
+
+        List<Cell> cells = result.listCells();
+        String res = "";
+        if(null != cells && !cells.isEmpty()){
+            for(Cell ce:cells){
+                res = Bytes.toString(ce.getValueArray(),
+                        ce.getValueOffset(),
+                        ce.getValueLength());
+                System.out.println("res:"+res+" timestamp:"+ce.getTimestamp());
+
+            }
+        }
+
+        for (KeyValue kv : result.list()) {
+            printKV(kv);
+        }
+    }
+
+    public void updataTable(String tableName, String rowKey, String familyName, String columnName, String value) throws IOException {
+        HTable hTable = new HTable(conf, Bytes.toBytes(tableName));
+        Put put = new Put(Bytes.toBytes(rowKey));
+        put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
+        hTable.put(put);
+        System.out.println("update table success! ");
+    }
+
 
     public static void main(String[] args) {
 
@@ -113,8 +146,12 @@ public class HbaseDemo {
 //            hbaseDemo.deleteAllColumn(tableName, "rowkey2");
 
 //            hbaseDemo.deleteColumn(tableName, "rowkey1", "f", "age");
-            hbaseDemo.deleteColumn(tableName, "rowkey2", "f", "age");
-
+//            hbaseDemo.deleteColumn(tableName, "rowkey2", "f", "age");
+            hbaseDemo.updataTable(tableName, "rowkey1", "f", "name", "nn1");
+            hbaseDemo.updataTable(tableName, "rowkey1", "f", "name", "nn2");
+            hbaseDemo.updataTable(tableName, "rowkey1", "f", "name", "nn3");
+            hbaseDemo.updataTable(tableName, "rowkey1", "f", "name", "nn4");
+            hbaseDemo.getResultByVersion(tableName, "rowkey1", "f", "name");
         } catch (Exception e) {
             e.printStackTrace();
         }
