@@ -2,10 +2,7 @@ package nx.zk.learn;
 
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -24,19 +21,6 @@ public class HbaseDemo {
     }
 
 
-    public static void main(String[] args) {
-
-        HbaseDemo hbaseDemo = new HbaseDemo();
-        String tableName = "student";
-        String[] family = {"f"};
-        try {
-            hbaseDemo.createTable(tableName, family);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private void createTable(String tableName, String[] family) throws IOException {
         HBaseAdmin admin = new HBaseAdmin(conf);
         HTableDescriptor descriptor = new HTableDescriptor(tableName);
@@ -53,5 +37,66 @@ public class HbaseDemo {
         }
     }
 
+    public void addData(String rowkey, String tableName, String[] column, String[] value) throws IOException {
+
+        // 设置rowkey
+        Put put = new Put(Bytes.toBytes(rowkey));
+        // HTable 负责跟记录相关的操作如增删改查等
+        HTable table = new HTable(conf, Bytes.toBytes(tableName));
+        // 获取所有的列簇
+        HColumnDescriptor[] columnFamilies = table.getTableDescriptor().getColumnFamilies();
+        for (int i = 0; i < column.length; i++) {
+            // 获取列簇命
+            String familyName = columnFamilies[0].getNameAsString();
+            if (familyName.equals("f")) {
+                put.add(Bytes.toBytes(familyName), Bytes.toBytes(column[i]), Bytes.toBytes(value[i]));
+            }
+        }
+        table.put(put);
+        System.out.println("add data Success");
+
+    }
+
+    public Result getResult(String tableName, String rowkey) throws Exception {
+        Get get = new Get(Bytes.toBytes(rowkey));
+        HTable table = new HTable(conf, Bytes.toBytes(tableName));
+        Result result = table.get(get);
+        for (KeyValue kv : result.list()) {
+            printKV(kv);
+        }
+        return result;
+    }
+
+    private void printKV(KeyValue kv) {
+        System.out.println("rowkey : " + Bytes.toString(kv.getRow()));
+        System.out.println("family : " + Bytes.toString(kv.getFamily()));
+        System.out.println("qualifier : " + Bytes.toString(kv.getQualifier()));
+        System.out.println("value : " + Bytes.toString(kv.getValue()));
+        System.out.println("Timestamp : " + kv.getTimestamp());
+        System.out.println("=================================");
+    }
+
+
+    public static void main(String[] args) {
+
+        HbaseDemo hbaseDemo = new HbaseDemo();
+        String tableName = "student";
+        String[] family = {"f"};
+        try {
+            // TODO: 2020/10/25 创建表
+            //hbaseDemo.createTable(tableName, family);
+            String[] column = {"name", "age"};
+            String[] value = {"nana", "18"};
+            String[] v1 = {"ll", "19"};
+            // TODO: 2020/10/25 添加信息
+//            hbaseDemo.addData("rowkey1", "student", column, value);
+//            hbaseDemo.addData("rowkey2", tableName, column, v1);
+
+//            hbaseDemo.getResult(tableName, "rowkey1");
+//            hbaseDemo.getResult(tableName, "rowkey2");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
