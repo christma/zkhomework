@@ -17,5 +17,5 @@ public interface DataTreeProtocol {
 
     DataNode setNode(String path, String data);
 
-    void treeShow(DataTree dataTree);
+    void treeShow();
 }

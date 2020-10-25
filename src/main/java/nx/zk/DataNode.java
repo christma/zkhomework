@@ -11,22 +11,16 @@ public class DataNode {
 
     private Set<String> children;
 
-    public DataNode(){
+    public DataNode() {
 
     }
 
     public DataNode(String data) {
         this.data = data;
-        parent = null;
+        parent = "./zkSource";
         children = null;
     }
 
-
-    public DataNode(String data, String parent, Set<String> children) {
-        this.data = data;
-        this.parent = parent;
-        this.children = children;
-    }
 
     public String getData() {
         return data;
@@ -52,15 +46,6 @@ public class DataNode {
         this.children = children;
     }
 
-    @Override
-    public String toString() {
-        return "DataNode{" +
-                "data='" + data + '\'' +
-                ", parent='" + parent + '\'' +
-                ", children=" + children +
-                '}';
-    }
-
     public synchronized boolean addChild(String child) {
         if (children == null) {
             children = new HashSet<String>(8);
@@ -75,5 +60,12 @@ public class DataNode {
         return children.remove(child);
     }
 
-
+    @Override
+    public String toString() {
+        return "DataNode{" +
+                "data='" + data + '\'' +
+                ", parent='" + parent + '\'' +
+                ", children=" + children +
+                '}';
+    }
 }

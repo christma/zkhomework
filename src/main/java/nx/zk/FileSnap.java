@@ -1,16 +1,23 @@
 package nx.zk;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
 import nx.zk.utils.GsonUtils;
+
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileSnap implements SnapShot {
 
-
+    @Override
     public void serialize(DataTree dataTree) {
 
 
@@ -40,25 +47,27 @@ public class FileSnap implements SnapShot {
         writer.close();
     }
 
-    public DataTree deserialize(String fliePath) {
-        ConcurrentHashMap<String, DataNode> map = GsonUtils.readJsonFile(fliePath);
+    @Override
+    public DataTree deserialize() {
+        String fliePath = "./zkSource/log.json";
+        ConcurrentHashMap<String, Object> map = GsonUtils.readJsonFile(fliePath);
         DataTree dataTree = new DataTree();
-        for (String key : map.keySet()) {
-            dataTree.nodes.put(key, map.get(key));
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            DataNode dataNode = JSON.parseObject(entry.getValue().toString(), DataNode.class);
+            dataTree.createNode(entry.getKey(), dataNode);
         }
 
         return dataTree;
     }
 
+    @Override
     public void close() throws IOException {
 
     }
 
     public static void main(String[] args) {
-        DataTree deserialize = new FileSnap().deserialize("./zkSource/log.json");
-        for (String s : deserialize.nodes.keySet()) {
-            System.out.println(deserialize.nodes.get(s));
-        }
+        new FileSnap().deserialize().treeShow();
+
     }
 
 }
