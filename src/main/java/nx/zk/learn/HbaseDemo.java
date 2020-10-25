@@ -76,6 +76,22 @@ public class HbaseDemo {
         System.out.println("=================================");
     }
 
+    public void deleteAllColumn(String tableName, String rowKey) throws IOException {
+        HTable table = new HTable(conf, Bytes.toBytes(tableName));
+        Delete deleteAll = new Delete(Bytes.toBytes(rowKey));
+        table.delete(deleteAll);
+        System.out.println("all columns are deleted ! ");
+    }
+
+    public void deleteColumn(String tableName, String rowKey, String fakliyName, String columnName) throws IOException {
+        HTable table = new HTable(conf, Bytes.toBytes(tableName));
+        Delete deleteColumn = new Delete(Bytes.toBytes(rowKey));
+        deleteColumn.deleteColumns(Bytes.toBytes(fakliyName), Bytes.toBytes(columnName));
+        table.delete(deleteColumn);
+        System.out.println(fakliyName + ": " + columnName + " is deleted");
+
+    }
+
 
     public static void main(String[] args) {
 
@@ -94,6 +110,11 @@ public class HbaseDemo {
 
 //            hbaseDemo.getResult(tableName, "rowkey1");
 //            hbaseDemo.getResult(tableName, "rowkey2");
+//            hbaseDemo.deleteAllColumn(tableName, "rowkey2");
+
+//            hbaseDemo.deleteColumn(tableName, "rowkey1", "f", "age");
+            hbaseDemo.deleteColumn(tableName, "rowkey2", "f", "age");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
